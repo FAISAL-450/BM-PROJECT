@@ -70,3 +70,7 @@ jobs:
           app-name: 'EF-ERP-App'
           slot-name: 'Production'
           package: release.zip
+
+
+
+
