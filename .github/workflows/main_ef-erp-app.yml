@@ -62,7 +62,6 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          auth-type: OIDC
 
       - name: 🚀 Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
@@ -70,7 +69,6 @@ jobs:
           app-name: 'EF-ERP-App'
           slot-name: 'Production'
           package: release.zip
-
 
 
 
