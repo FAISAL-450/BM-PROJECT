@@ -76,15 +76,12 @@ TEMPLATES = [
 # 🗄️ Database config for Azure PostgreSQL
 DATABASES = {
     'default': {
-        'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql_psycopg2'),
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': env('DATABASE_NAME'),
         'USER': env('DATABASE_USER'),
         'PASSWORD': env('DATABASE_PASSWORD'),
         'HOST': env('DATABASE_HOST'),
         'PORT': env('DATABASE_PORT', default='5432'),
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
     }
 }
 
