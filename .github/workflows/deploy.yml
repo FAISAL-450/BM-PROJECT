@@ -7,7 +7,11 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
+<<<<<<< HEAD
       DJANGO_SETTINGS_MODULE: bm_garden.settings
+=======
+      DJANGO_SETTINGS_MODULE: ef_garden.settings
+>>>>>>> 4e6c55442d77ac35a2ccbcf302a97dda0ea134e6
     steps:
       # 📥 Step 1: Checkout code
       - name: 📥 Checkout repository
@@ -36,7 +40,11 @@ jobs:
           echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> $GITHUB_ENV
       # 🧪 Step 5: Verify settings path
       - name: 🧪 Verify settings.py exists
+<<<<<<< HEAD
         run: cat bm_garden/settings.py
+=======
+        run: cat ef_garden/settings.py
+>>>>>>> 4e6c55442d77ac35a2ccbcf302a97dda0ea134e6
       # 📁 Step 6: Collect static files
       - name: 📁 Collect static files
         run: python manage.py collectstatic --noinput
@@ -47,7 +55,11 @@ jobs:
       - name: 🚀 Deploy to Azure
         uses: azure/webapps-deploy@v2
         with:
+<<<<<<< HEAD
           app-name: bm-erp-app  # Replace with actual Azure Web App name
+=======
+          app-name: ef-erp-app  # Replace with actual Azure Web App name
+>>>>>>> 4e6c55442d77ac35a2ccbcf302a97dda0ea134e6
           slot-name: production
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISH_PROFILE }}
           package: .

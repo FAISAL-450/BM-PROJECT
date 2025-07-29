@@ -7,3 +7,7 @@ class Project(models.Model):
     contact_person_number = models.CharField(max_length=20)  # Contact number of contact person
     def __str__(self):
         return f"{self.name_of_project}"
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4e6c55442d77ac35a2ccbcf302a97dda0ea134e6
