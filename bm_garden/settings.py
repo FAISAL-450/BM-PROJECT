@@ -1,27 +1,22 @@
 import os
 import json
 from pathlib import Path
-import environ
-
-# 🌱 Initialize environment variables
-env = environ.Env()
-environ.Env.read_env()
 
 # 🏗️ Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 🔐 Security settings
-SECRET_KEY = env('DJANGO_SECRET_KEY', default='unsafe-default-key')
-DEBUG = env.bool('DJANGO_DEBUG', default=False)
+# 🔐 Security
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-default-key')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-# 🌍 Hosts & CSRF
+# 🌍 Hosts and CSRF
 try:
-    ALLOWED_HOSTS = json.loads(env('DJANGO_ALLOWED_HOSTS', default='["localhost", "127.0.0.1"]'))
+    ALLOWED_HOSTS = json.loads(os.environ.get('DJANGO_ALLOWED_HOSTS', '["localhost", "127.0.0.1"]'))
 except json.JSONDecodeError:
     ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 try:
-    CSRF_TRUSTED_ORIGINS = json.loads(env('CSRF_TRUSTED_ORIGINS', default='[]'))
+    CSRF_TRUSTED_ORIGINS = json.loads(os.environ.get('CSRF_TRUSTED_ORIGINS', '[]'))
 except json.JSONDecodeError:
     CSRF_TRUSTED_ORIGINS = []
 
@@ -33,7 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Your apps
+    # Project apps
     'home',
     'construction_department',
     'project',
@@ -42,7 +37,7 @@ INSTALLED_APPS = [
 # ⚙️ Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware' if not DEBUG else '',
+    'whitenoise.middleware.WhiteNoiseMiddleware' if not DEBUG else '',  # Enable in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -50,9 +45,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-MIDDLEWARE = [mw for mw in MIDDLEWARE if mw]
+MIDDLEWARE = [mw for mw in MIDDLEWARE if mw]  # Remove empty string if DEBUG
 
-# 🌐 URLs & WSGI
+# 🌐 Root URLs and WSGI
 ROOT_URLCONF = 'bm_garden.urls'
 WSGI_APPLICATION = 'bm_garden.wsgi.application'
 
@@ -73,15 +68,11 @@ TEMPLATES = [
     },
 ]
 
-# 🗄️ Database config for Azure PostgreSQL
+# 🗄️ Database (switchable via env if needed)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DATABASE_NAME'),
-        'USER': env('DATABASE_USER'),
-        'PASSWORD': env('DATABASE_PASSWORD'),
-        'HOST': env('DATABASE_HOST'),
-        'PORT': env('DATABASE_PORT', default='5432'),
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.environ.get('DB_NAME', BASE_DIR / 'db.sqlite3'),
     }
 }
 
@@ -103,12 +94,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 🎯 Whitenoise for production
+# Production static file handling
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# 🆔 Primary key type
+# 🆔 Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 
 
 
