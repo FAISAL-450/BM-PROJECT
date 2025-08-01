@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls')),  # Homepage
     path('construction-department/', include('construction_department.urls')),  # ✅ Add this line
+    path('sales-department/', include('sales_department.urls')),  # ✅ Add this line
 ]
 
