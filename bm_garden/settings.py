@@ -29,12 +29,31 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Project apps
-    'home',
+    
     'construction_department',
     'sales_department',  # Your custom app
     'project',
     'customer',  # Your custom app
+    'home.apps.HomeConfig',
 ]
+
+LOGIN_URL = "/azure_auth/login"
+LOGIN_REDIRECT_URL = "/"
+
+
+AZURE_AUTH = {
+    "CLIENT_ID": os.getenv("AZURE_CLIENT_ID"),
+    "CLIENT_SECRET": os.getenv("AZURE_CLIENT_SECRET"),
+    "REDIRECT_URI": os.getenv("AZURE_REDIRECT_URI"),
+    "SCOPES": ["User.Read"],
+    "AUTHORITY": os.getenv("AZURE_AUTHORITY"),
+    "USERNAME_ATTRIBUTE": "preferred_username",
+    "ROLES": {
+        "aad-group-id-of-Construction Dept": "ConstructionGroup",
+        "aad-group-id-of-Sales Dept": "SalesGroup"
+    }
+}
+
 
 # ⚙️ Middleware
 MIDDLEWARE = [
