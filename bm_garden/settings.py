@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'project',
     'customer',  # Your custom app
     'home.apps.HomeConfig',
+    'azure_auth',
+
 ]
 
 LOGIN_URL = "/azure_auth/login"
