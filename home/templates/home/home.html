@@ -37,7 +37,7 @@
     </a>
 {% endif %}
 
-{% if request.user|in_group:"DesignGroup" %}
+{% if request.user|in_group:"SalesGroup" %}
     <a href="{% url 'sales_department' %}">
         <button type="button">Sales Department</button>
     </a>

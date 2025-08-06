@@ -1,15 +1,16 @@
+from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.contrib.auth.signals import user_logged_in
-from django.contrib.auth.models import Group
-from django.conf import settings
+from django.contrib.auth.models import User, Group
 
-@receiver(user_logged_in)
-def assign_group(sender, request, user, **kwargs):
-    azure_group_ids = request.session.get("azure_groups", [])
-    roles_mapping = settings.AZURE_AUTH.get("ROLES", {})
-
-    for azure_id in azure_group_ids:
-        group_name = roles_mapping.get(azure_id)
-        if group_name:
+@receiver(post_save, sender=User)
+def assign_groups(sender, instance, created, **kwargs):
+    if created and instance.username == 'admin':
+        role_mapping = {
+            "eb69dbcb-90a4-4f13-9059-d6494812fd8f": "ConstructionGroup",
+            "2b36c9c9-5c74-435b-becd-d01df21e4cf4": "SalesGroup"
+        }
+        for group_name in role_mapping.values():
             group, _ = Group.objects.get_or_create(name=group_name)
-            user.groups.add(group)
+            instance.groups.add(group)
+
+
