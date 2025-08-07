@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 Security
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-default-key')
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 # 🌍 Hosts and CSRF
 try:
@@ -20,25 +20,20 @@ try:
 except json.JSONDecodeError:
     CSRF_TRUSTED_ORIGINS = []
 
-# 🆔 Azure AD Credentials
-AZURE_AD_CLIENT_ID = os.environ.get('AZURE_AD_CLIENT_ID')
-AZURE_AD_CLIENT_SECRET = os.environ.get('AZURE_AD_CLIENT_SECRET')
-AZURE_AD_TENANT_ID = os.environ.get('AZURE_AD_TENANT_ID')
-
-# 🔐 Azure AD + Easy Auth Configuration
+# 🔐 Azure Easy Auth Configuration
 AZURE_AUTH = {
-    "CLIENT_ID": AZURE_AD_CLIENT_ID,
-    "CLIENT_SECRET": AZURE_AD_CLIENT_SECRET,
-    "REDIRECT_URI": "https://bm-erp-app.azurewebsites.net/.auth/login/aad/callback",  # updated to match actual redirect URI
-    "AUTHORITY": "https://login.microsoftonline.com/530309b4-7b42-400e-9b38-eae5bef5408e",  # updated tenant ID
-    "SCOPES": ["User.Read"],
-    "USERNAME_ATTRIBUTE": "mail",  # or "preferred_username" depending on token
-    "GROUP_ATTRIBUTE": "groups",   # matches Azure AD claim type
+    "USERNAME_HEADER": "X-MS-CLIENT-PRINCIPAL-NAME",
+    "PRINCIPAL_HEADER": "X-MS-CLIENT-PRINCIPAL",
+    "USERNAME_ATTRIBUTE": "userDetails",  # ✅ Required for system check
+    "GROUP_ATTRIBUTE": "userRoles",
     "GROUP_ROLE_MAP": {
         "eb69dbcb-90a4-4f13-9059-d6494812fd8f": "ConstructionGroup",
         "2b36c9c9-5c74-435b-becd-d01df21e4cf4": "SalesGroup",
-    }
+    },
+    "AUTO_CREATE_USER": True,
+    "AUTO_LOGIN": True,
 }
+
 # 📦 Installed apps
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -53,12 +48,12 @@ INSTALLED_APPS = [
     'sales_department',
     'project',
     'customer',
-    # Azure AD auth
+    # Azure Easy Auth handler
     'azure_auth',
 ]
 
 # 🔐 Auth
-LOGIN_URL = '/azure_auth/login'
+LOGIN_URL = '/.auth/login/aad'
 LOGIN_REDIRECT_URL = '/'
 
 AUTHENTICATION_BACKENDS = [
@@ -68,7 +63,7 @@ AUTHENTICATION_BACKENDS = [
 # ⚙️ Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware' if not DEBUG else '',
+    'whitenoise.middleware.WhiteNoiseMiddleware' if not DEBUG else None,
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -76,7 +71,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-MIDDLEWARE = [mw for mw in MIDDLEWARE if mw]  # Remove empty string if DEBUG
+MIDDLEWARE = [mw for mw in MIDDLEWARE if mw]
 
 # 🌐 Root URLs and WSGI
 ROOT_URLCONF = 'bm_garden.urls'
@@ -103,7 +98,7 @@ TEMPLATES = [
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.environ.get('DB_NAME', BASE_DIR / 'db.sqlite3'),
+        'NAME': os.environ.get('DB_NAME', str(BASE_DIR / 'db.sqlite3')),
     }
 }
 
@@ -130,3 +125,4 @@ if not DEBUG:
 
 # 🆔 Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

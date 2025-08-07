@@ -1,0 +1,41 @@
+import base64
+import json
+from django.contrib.auth import get_user_model, login
+from django.utils.deprecation import MiddlewareMixin
+from django.conf import settings
+
+def get_easy_auth_user(request):
+    header = request.headers.get(settings.AZURE_AUTH.get("PRINCIPAL_HEADER", "X-MS-CLIENT-PRINCIPAL"))
+    if not header:
+        return None
+
+    try:
+        decoded = base64.b64decode(header)
+        user_info = json.loads(decoded)
+        return {
+            "id": user_info.get("userId"),
+            "email": user_info.get("userDetails"),
+            "provider": user_info.get("identityProvider"),
+            "roles": user_info.get("userRoles", []),
+        }
+    except Exception:
+        return None
+
+class EasyAuthMiddleware(MiddlewareMixin):
+    def process_request(self, request):
+        if request.user.is_authenticated:
+            return
+
+        user_data = get_easy_auth_user(request)
+        if not user_data:
+            return
+
+        User = get_user_model()
+        username = user_data["email"]
+        user, created = User.objects.get_or_create(username=username, defaults={"email": username})
+
+        if settings.AZURE_AUTH.get("AUTO_LOGIN", True):
+            login(request, user)
+
+        request.easy_auth_user = user_data  # optional: attach raw info to request
+
