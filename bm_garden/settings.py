@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 Security
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-default-key')
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
 
 # 🌍 Hosts and CSRF
 try:
@@ -19,20 +19,6 @@ try:
     CSRF_TRUSTED_ORIGINS = json.loads(os.environ.get('CSRF_TRUSTED_ORIGINS', '[]'))
 except json.JSONDecodeError:
     CSRF_TRUSTED_ORIGINS = []
-
-# 🔐 Azure Easy Auth Configuration
-AZURE_AUTH = {
-    "USERNAME_HEADER": "X-MS-CLIENT-PRINCIPAL-NAME",
-    "PRINCIPAL_HEADER": "X-MS-CLIENT-PRINCIPAL",
-    "USERNAME_ATTRIBUTE": "userDetails",  # ✅ Required for system check
-    "GROUP_ATTRIBUTE": "userRoles",
-    "GROUP_ROLE_MAP": {
-        "eb69dbcb-90a4-4f13-9059-d6494812fd8f": "ConstructionGroup",
-        "2b36c9c9-5c74-435b-becd-d01df21e4cf4": "SalesGroup",
-    },
-    "AUTO_CREATE_USER": True,
-    "AUTO_LOGIN": True,
-}
 
 # 📦 Installed apps
 INSTALLED_APPS = [
@@ -48,22 +34,12 @@ INSTALLED_APPS = [
     'sales_department',
     'project',
     'customer',
-    # Azure Easy Auth handler
-    'azure_auth',
-]
-
-# 🔐 Auth
-LOGIN_URL = '/.auth/login/aad'
-LOGIN_REDIRECT_URL = '/'
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
 ]
 
 # ⚙️ Middleware
 MIDDLEWARE = [
+    'home.middleware.AzureEasyAuthMiddleware',  # ✅ Custom middleware
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware' if not DEBUG else None,
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -71,9 +47,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-MIDDLEWARE = [mw for mw in MIDDLEWARE if mw]
 
-# 🌐 Root URLs and WSGI
+# 🌐 URL and WSGI
 ROOT_URLCONF = 'bm_garden.urls'
 WSGI_APPLICATION = 'bm_garden.wsgi.application'
 
@@ -120,9 +95,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# 🧊 Production static file handling
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # 🆔 Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
 
