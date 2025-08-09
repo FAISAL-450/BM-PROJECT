@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 Security
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'unsafe-default-key')
-DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() == 'true'
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
 # 🌍 Hosts and CSRF
 try:
@@ -36,10 +36,15 @@ INSTALLED_APPS = [
     'customer',
 ]
 
+AZURE_GROUP_MAP = {
+    "eb69dbcb-90a4-4f13-9059-d6494812fd8f": "ConstructionGroup",
+    "2b36c9c9-5c74-435b-becd-d01df21e4cf4": "SalesGroup"
+}
+
 # ⚙️ Middleware
 MIDDLEWARE = [
-    'home.middleware.AzureEasyAuthMiddleware',  # ✅ Custom middleware
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware' if not DEBUG else '',  # Enable in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -47,8 +52,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+MIDDLEWARE = [mw for mw in MIDDLEWARE if mw]  # Remove empty string if DEBUG
 
-# 🌐 URL and WSGI
+# 🌐 Root URLs and WSGI
 ROOT_URLCONF = 'bm_garden.urls'
 WSGI_APPLICATION = 'bm_garden.wsgi.application'
 
@@ -69,11 +75,11 @@ TEMPLATES = [
     },
 ]
 
-# 🗄️ Database
+# 🗄️ Database (switchable via env if needed)
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
-        'NAME': os.environ.get('DB_NAME', str(BASE_DIR / 'db.sqlite3')),
+        'NAME': os.environ.get('DB_NAME', BASE_DIR / 'db.sqlite3'),
     }
 }
 
@@ -95,12 +101,13 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 🧊 Production static file handling
+# Production static file handling
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # 🆔 Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 
 
