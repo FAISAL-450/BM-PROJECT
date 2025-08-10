@@ -34,7 +34,37 @@ INSTALLED_APPS = [
     'sales_department',
     'project',
     'customer',
+
+    'django_auth_adfs',
+
 ]
+
+
+
+AUTHENTICATION_BACKENDS = [
+    'django_auth_adfs.backend.AdfsAuthCodeBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+
+AUTH_ADFS = {
+    "TENANT_ID": "530309b4-7b42-400e-9b38-eae5bef5408e",
+    "CLIENT_ID": "090954ee-4a87-4ac9-99eb-a112551c09a8",
+    "RELYING_PARTY_ID": "090954ee-4a87-4ac9-99eb-a112551c09a8",  # ✅ Often same as CLIENT_ID
+    "AUDIENCE": "090954ee-4a87-4ac9-99eb-a112551c09a8",           # ✅ Optional but valid
+    "ISSUER": "https://sts.windows.net/530309b4-7b42-400e-9b38-eae5bef5408e/",  # ✅ Correct format
+}
+
+
+
+
+
+LOGIN_URL = '/oauth2/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/oauth2/logout/'
+
+
+
 
 # ⚙️ Middleware
 MIDDLEWARE = [
