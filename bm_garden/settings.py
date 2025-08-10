@@ -36,27 +36,19 @@ INSTALLED_APPS = [
     'customer',
 ]
 
-AZURE_GROUP_MAP = {
-    "eb69dbcb-90a4-4f13-9059-d6494812fd8f": "ConstructionGroup",
-    "2b36c9c9-5c74-435b-becd-d01df21e4cf4": "SalesGroup"
-}
-
-
-
 # ⚙️ Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware' if not DEBUG else '',  # Enable in production
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Must come before your custom middleware
-    'home.middleware.AzureEasyAuthMiddleware',  # ✅ Your custom middleware
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-
 MIDDLEWARE = [mw for mw in MIDDLEWARE if mw]  # Remove empty string if DEBUG
+
 
 # 🌐 Root URLs and WSGI
 ROOT_URLCONF = 'bm_garden.urls'
@@ -79,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-# 🗄️ Database (switchable via env if needed)
+# 🗄️ Database
 DATABASES = {
     'default': {
         'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.sqlite3'),
@@ -105,12 +97,18 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Production static file handling
 if not DEBUG:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # 🆔 Default primary key field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 👥 Azure AD Email to Group Mapping
+AZURE_AD_EMAIL_TO_GROUP = {
+    "masud@dzignscapeprofessionals.onmicrosoft.com": "ConstructionGroup",
+    "nayan@dzignscapeprofessionals.onmicrosoft.com": "SalesGroup",
+}
+
 
 
 
