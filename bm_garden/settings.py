@@ -37,6 +37,8 @@ INSTALLED_APPS = [
 
     'django_auth_adfs',
 
+
+
 ]
 
 
